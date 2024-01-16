@@ -629,8 +629,3 @@ def van2a_b6(pretrained=False, **kwargs):
         **kwargs)
     model.default_cfg = _cfg()
     return model
-
-
-model = ablation_van2_TLKA_b0()
-image = torch.randn(1, 3, 224, 224)
-print(model(image))
