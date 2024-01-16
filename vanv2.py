@@ -185,8 +185,8 @@ class TLKA(nn.Module):
             x = self.proj_1(x)
             x = self.activation(x)
 
-        attn = self.conv1(attn)
-        attn = self.conv0(x)
+        attn = self.conv1(x)
+        attn = self.conv0(attn)
         attn = self.conv_spatial(attn)
 
         x *= attn
@@ -629,3 +629,8 @@ def van2a_b6(pretrained=False, **kwargs):
         **kwargs)
     model.default_cfg = _cfg()
     return model
+
+
+model = ablation_van2_TLKA_b0()
+image = torch.randn(1, 3, 224, 224)
+print(model(image))
