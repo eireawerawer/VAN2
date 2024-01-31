@@ -352,6 +352,7 @@ class VAN2(nn.Module):
         super().__init__()
 
         self.num_stages = num_stages
+        self.num_classes = num_classes
 
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))]  # stochastic depth decay rule
         cur = 0
