@@ -118,20 +118,20 @@ class LKA(nn.Module):
 
     def forward(self, x):
         shorcut = x.clone()
+        
         if self.nopw==0:
             x = self.proj_1(x)
             x = self.activation(x)
 
         attn = self.conv0(x)
         attn = self.conv_spatial(attn)
-        attn = self.conv1(attn)
-
-        x *= attn
+        x = x * self.conv1(attn)
+        
 
         if self.nopw==0:
             x = self.proj_2(x)
-        x += shorcut
-        return x
+
+        return x + shortcut
 
 class ILKA(nn.Module):
     def __init__(self, d_model, act=nn.GELU, nopw=0):
@@ -157,9 +157,9 @@ class ILKA(nn.Module):
 
         c_attn = self.conv1(x)     
         s_attn = self.conv0(x)
-        s_attn = self.conv_spatial(s_attn)
+        s_attn = self.conv_spatial(s_attn) * c_attn
 
-        x *= c_attn * s_attn
+        x = s_attn * x
     
         if self.nopw==0:
             x = self.proj_2(x)
@@ -187,9 +187,8 @@ class TLKA(nn.Module):
 
         attn = self.conv1(x)
         attn = self.conv0(attn)
-        attn = self.conv_spatial(attn)
+        x = self.conv_spatial(attn) * x
 
-        x *= attn
 
         if self.nopw==0:
             x = self.proj_2(x)

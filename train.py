@@ -402,7 +402,7 @@ def _parse_args():
 def main():
     utils.setup_default_logging()
     args, args_text = _parse_args()
-
+    torch.autograd.set_detect_anomaly(True)
     if torch.cuda.is_available():
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.benchmark = True
@@ -628,10 +628,10 @@ def main():
         batch_size=args.batch_size,
         seed=args.seed,
         repeats=args.epoch_repeats,
-        input_img_mode=input_img_mode,
-        input_key=args.input_key,
-        target_key=args.target_key,
-        num_samples=args.train_num_samples,
+        # input_img_mode=input_img_mode,
+        # input_key=args.input_key,
+        # target_key=args.target_key,
+        # num_samples=args.train_num_samples,
     )
 
     if args.val_split:
@@ -643,10 +643,10 @@ def main():
             class_map=args.class_map,
             download=args.dataset_download,
             batch_size=args.batch_size,
-            input_img_mode=input_img_mode,
-            input_key=args.input_key,
-            target_key=args.target_key,
-            num_samples=args.val_num_samples,
+            # input_img_mode=input_img_mode,
+            # input_key=args.input_key,
+            # target_key=args.target_key,
+            # num_samples=args.val_num_samples,
         )
 
     # setup mixup / cutmix
@@ -688,15 +688,15 @@ def main():
         re_mode=args.remode,
         re_count=args.recount,
         re_split=args.resplit,
-        train_crop_mode=args.train_crop_mode,
+        crop_mode=args.train_crop_mode,
         scale=args.scale,
         ratio=args.ratio,
         hflip=args.hflip,
         vflip=args.vflip,
         color_jitter=args.color_jitter,
-        color_jitter_prob=args.color_jitter_prob,
-        grayscale_prob=args.grayscale_prob,
-        gaussian_blur_prob=args.gaussian_blur_prob,
+        # color_jitter_prob=args.color_jitter_prob,
+        # grayscale_prob=args.grayscale_prob,
+        # gaussian_blur_prob=args.gaussian_blur_prob,
         auto_augment=args.aa,
         num_aug_repeats=args.aug_repeats,
         num_aug_splits=num_aug_splits,
@@ -807,7 +807,7 @@ def main():
     updates_per_epoch = (len(loader_train) + args.grad_accum_steps - 1) // args.grad_accum_steps
     lr_scheduler, num_epochs = create_scheduler_v2(
         optimizer,
-        **scheduler_kwargs(args, decreasing_metric=decreasing_metric),
+        **scheduler_kwargs(args),
         updates_per_epoch=updates_per_epoch,
     )
     start_epoch = 0
@@ -983,8 +983,10 @@ def train_one_epoch(
                 output = model(input)
                 loss = loss_fn(output, target)
             if accum_steps > 1:
-                loss /= accum_steps
-            return loss
+                true_loss = loss / accum_steps
+                return true_loss
+            else:
+                return loss
 
         def _backward(_loss):
             if loss_scaler is not None:
@@ -998,7 +1000,7 @@ def train_one_epoch(
                     need_update=need_update,
                 )
             else:
-                _loss.backward(create_graph=second_order)
+                _loss.backward()
                 if need_update:
                     if args.clip_grad is not None:
                         utils.dispatch_clip_grad(
