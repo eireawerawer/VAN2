@@ -348,7 +348,8 @@ class OverlapPatchEmbed(nn.Module):
 class VAN2(nn.Module):
     def __init__(self, img_size=224, in_chans=3, embed_dims=[32, 64, 160, 256], depths=[3, 3, 5, 2],
                 num_classes=1000, mlp_ratios=[8, 8, 4, 4], drop_rate=0., drop_path_rate=0., 
-                norm_layer=nn.LayerNorm, num_stages=4, mlp=[Mlp, Mlp, Mlp, Mlp], act=StarReLU, scale=1, tokenmixer=[ILKA, ILKA, ILKA, ILKA], nopw=1):
+                norm_layer=nn.LayerNorm, num_stages=4, mlp=[Mlp, Mlp, Mlp, Mlp], act=StarReLU, scale=1, tokenmixer=[ILKA, ILKA, ILKA, ILKA], nopw=1,
+                **kwargs):
         super().__init__()
 
         self.num_stages = num_stages
