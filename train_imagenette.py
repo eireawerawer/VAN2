@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
-from vanv2 import VANv2
+from outdated_van import VANv2
 import torch.optim.lr_scheduler as lr_scheduler
 import random
 from torch.nn import DataParallel
